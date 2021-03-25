@@ -298,12 +298,16 @@ class DataClassParser(ArgumentParser):
             const = metadata.get("const")
 
             # default value
-            default_value = None if dc_field.default == MISSING else dc_field.default
-            default = metadata.get("default", default_value)
+            if dc_field.default == MISSING and dc_field.default_factory == MISSING:
+                default = None
+            elif dc_field.default != MISSING:
+                default = dc_field.default
+            else:
+                default = dc_field.default_factory()
+
             use_default = arg_type != bool and action not in [
                 "store_true",
                 "store_false",
-                # "append_const",
             ]
             pass_null_default = is_optional
 
