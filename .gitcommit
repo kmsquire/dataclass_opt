@@ -1,0 +1,34 @@
+
+
+# This repository uses conventional-commits, which have the following form:
+#
+#
+#     feat(scope)!: Implemented a cool new feature
+#
+#     * We were missing this feature previously, and we sorely needed it
+#     * The feature makes our code run 1000x faster
+#
+#     BREAKING CHANGE: you need to update your code to use this version
+#     Co-authored-by: fred-flintstone@secondspectrum.com
+#
+#
+# The prefix must be one of the following:
+#
+#    build:    Changes affecting the build system or external dependencies
+#              (example scopes: poetry, npm, make)
+#    ci:       Changes to CI configuration files and scripts
+#    docs:     Documentation only changes
+#    feat:     A new feature
+#    fix:      A bug fix
+#    perf:     A code change that improves performance
+#    refactor: A code change that neither fixes a bug nor adds a feature
+#    style:    Changes that do not affect code meaning (white-space, formatting, etc.)
+#    test:     Adding missing tests or correcting existing tests
+#
+# The (scope) is optional, but recommended especially for monorepos with
+# many subprojects.
+#
+# The "!" in the subject line and the "BREAKING CHANGE:" in the footer are both
+# indicators that this commit is a breaking change, and as such, requires a major
+# version bump (unless the version starts with a "0").  At least one of these is
+# required for breaking changes.

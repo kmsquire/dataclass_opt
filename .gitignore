@@ -1,7 +1,15 @@
 .mypy_cache
 .pytest_cache
 **/__pycache__
+*.py[cod]
 dist
-dataclass_opt.egg-info
+*.egg-info/
+build/
 htmlcov
-.coverage
+.coverage*
+pip-wheel-metadata/
+site/
+poetry.lock
+.venv/
+node_modules
+package-lock.json

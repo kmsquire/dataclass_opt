@@ -1,0 +1,21 @@
+# Changes here will be overwritten by Copier
+_commit: v0.1.7
+_src_path: git@git.2nd.io:kevin/copier-2s-ai-py.git
+author_email: kevin.squire@gmail.com
+author_fullname: Kevin Squire
+author_username: kmsquire
+copyright_date: '2021'
+copyright_holder: Kevin Squire
+copyright_holder_email: kevin.squire@gmail.com
+copyright_license: MIT License
+project_description: Create command line argument parsers using dataclasses
+project_name: dataclass-opt
+python_package_command_line_name: ''
+python_package_distribution_name: dataclass-opt
+python_package_import_name: dataclass_opt
+repository_name: dataclass-opt
+repository_namespace: kmsquire
+repository_provider: github.com
+test_multiple_python_versions: true
+use_precommit: true
+

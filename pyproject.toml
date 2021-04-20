@@ -1,54 +1,66 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
 [tool.poetry]
 authors = ["Kevin Squire <kevin.squire@gmail.com>"]
 description = "Create command line argument parsers using dataclasses"
+homepage = "https://github.com/kmsquire/dataclass-opt"
+keywords = []
 license = "MIT License"
-name = "dataclass_opt"
+name = "dataclass-opt"
+packages = [{include = "dataclass_opt", from = "src"}]
+readme = "README.md"
+repository = "https://github.com/kmsquire/dataclass-opt"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
 inflection = "^0.5.1"
-python = "^3.6"
+python = " >=3.7,<3.10"
 
 [tool.poetry.dev-dependencies]
+# formatting, quality, tests
+autoflake = "^1.4"
 black = "^20.8b1"
 flake8 = "^3.9.0"
+ipython = "*"
 isort = "^5.7.0"
-pylint = "^2.7.2"
-pytest = "^6.2.2"
-pytest-pudb = "^0.7.0"
-rope = "^0.18.0"
-pytest-cov = "^2.11.1"
+jedi = "v0.17.2"
+jinja2 = "~2.11.3"
 mypy = "^0.812"
+pre-commit = "^2.12.0"
+pudb = "*"
+pytest = "^6.2.2"
+pytest-cov = "^2.11.1"
+pytest-pudb = "^0.7.0"
+# pytest-randomly = "^3.6.0"  # Fails to install
+pytest-sugar = "^0.9.4"
+pytest-xdist = "^2.2.0"
+safety = "~1"
 
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
+# tasks
+duty = "^0.6.0"
+git-changelog = {git = "https://github.com/kmsquire/git-changelog.git", branch = "master"}
+httpx = "^0.16.1"
+jinja2-cli = "^0.7.0"
+toml = "^0.10.2"
+
+# docs
+mkdocs = "^1.1.2"
+mkdocs-coverage = "^0.2.1"
+mkdocs-macros-plugin = "^0.5.0"
+mkdocs-material = "^6.2.7"
+mkdocstrings = "^0.15.0"
 
 [tool.black]
-exclude = """
-(
-      .eggs         # exclude a few common directories in the
-    | .git          # root of the project
-    | .mypy_cache
-    | .tox
-    | .venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)
-"""
-include = ".pyi?$"
+exclude = "tests/fixtures"
 line-length = 100
-target-version = ["py36"]
 
 [tool.isort]
-ensure_newline_before_comments = true
-force_grid_wrap = 0
+balanced_wrapping = true
+default_section = "THIRDPARTY"
+force_single_line = false
 include_trailing_comma = true
+known_first_party = "dataclass_opt"
 line_length = 100
 multi_line_output = 3
-use_parentheses = true
-
-[tool.pylint]
-max-line-length = 100

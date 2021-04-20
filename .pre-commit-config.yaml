@@ -1,0 +1,47 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v4.1.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: trailing-whitespace
+        stages: [commit, push]
+      - id: end-of-file-fixer
+        stages: [commit, push]
+        exclude: (.gitcommit|.copier-answers.yml)$
+      - id: check-yaml
+        stages: [commit, push]
+      - id: check-added-large-files
+        stages: [commit, push]
+  - repo: local
+    hooks:
+      - id: check-format
+        name: Check code format
+        entry: poetry run duty check-format
+        language: system
+        types: [python]
+        stages: [commit, push]
+      - id: flake8
+        name: Run flake8
+        entry: poetry run duty check-code-quality
+        language: system
+        types: [python]
+        stages: [commit, push]
+      - id: mypy
+        name: Run type checking with mypy
+        entry: poetry run duty check-types
+        language: system
+        types: [python]
+        stages: [commit, push]
+      - id: pytest
+        name: Check pytest unit tests pass
+        entry: poetry run duty test
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [push]   # Can be time consuming, so only run on push
