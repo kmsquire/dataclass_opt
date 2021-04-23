@@ -40,7 +40,7 @@ safety = "~1"
 
 # tasks
 duty = "^0.6.0"
-git-changelog = {git = "https://github.com/kmsquire/git-changelog.git", branch = "master"}
+git-changelog = {git = "https://github.com/pawamoy/git-changelog.git", rev = "3becce8d344a3985905b0af916e9bcc426760426"}
 httpx = "^0.16.1"
 jinja2-cli = "^0.7.0"
 toml = "^0.10.2"
