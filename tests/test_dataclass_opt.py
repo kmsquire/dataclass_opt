@@ -471,6 +471,10 @@ def test_subparsers():
     assert args == Test(True)
     assert cmd_args == B("Z")
 
+    args, cmd_args = parser.parse_args([])
+    assert args == Test(False)
+    assert cmd_args is None
+
 
 def test_subparsers2():
     @dataclass
@@ -492,6 +496,10 @@ def test_subparsers2():
     assert args == Namespace(foo=True)
     assert cmd_args == B("Z")
 
+    args, cmd_args = parser.parse_args([])
+    assert args == Namespace(foo=False)
+    assert cmd_args is None
+
 
 def test_subparsers3():
     @dataclass
@@ -509,3 +517,6 @@ def test_subparsers3():
 
     args = parser.parse_args("b --baz Z".split())
     assert args == B("Z")
+
+    args = parser.parse_args([])
+    assert args is None

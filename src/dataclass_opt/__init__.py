@@ -158,6 +158,8 @@ _parsing_args = False
 class DataClassParser(ArgumentParser):
     def __init__(self, *args, **kwargs):
         self.subparsers = None
+        self.have_dataclass_commands = False
+        self.have_non_dataclass_args = False
         init_dataclass = None
         commands = {}
         version = None
@@ -170,9 +172,11 @@ class DataClassParser(ArgumentParser):
         if "command" in kwargs.keys():
             command = kwargs.pop("command")
             commands.update(_to_name_command_dict(command))
+            self.have_dataclass_commands = True
         if "commands" in kwargs.keys():
             cmds = kwargs.pop("commands")
             commands.update(_to_name_command_dict(cmds))
+            self.have_dataclass_commands = True
         if "version" in kwargs.keys():
             version = kwargs.pop("version")
 
@@ -210,7 +214,15 @@ class DataClassParser(ArgumentParser):
         if func:
             cmd_parser.set_defaults(func=func)
 
+        self.have_dataclass_commands = True
+
         return cmd_parser
+
+    def add_argument(self, *args, **kwargs):
+        action = kwargs.get("action")
+        if action not in ["help", "version"]:
+            self.have_non_dataclass_args = True
+        return super().add_argument(*args, **kwargs)
 
     def add_arguments(self, cls):
         if not is_dataclass(cls):
@@ -234,6 +246,10 @@ class DataClassParser(ArgumentParser):
         cmd_is_dataclass = "cmd_cls" in args and is_dataclass(args.cmd_cls)
 
         if not cls_is_dataclass and not cmd_is_dataclass:
+            if self.have_non_dataclass_args and self.have_dataclass_commands:
+                return (args, None), argv
+            elif self.have_dataclass_commands:
+                return None, argv
             return args, argv
 
         data = {k: v for k, v in vars(args).items()}
@@ -258,7 +274,10 @@ class DataClassParser(ArgumentParser):
             other_data = {key: value for key, value in data.items() if key not in cls_fields}
 
             if not other_data:
-                return cls_obj, argv
+                if self.have_dataclass_commands:
+                    return (cls_obj, None), argv
+                else:
+                    return cls_obj, argv
             else:
                 return (cls_obj, Namespace(**other_data)), argv
 
@@ -268,6 +287,8 @@ class DataClassParser(ArgumentParser):
         other_data = {key: value for key, value in data.items() if key not in cmd_cls_fields}
 
         if not other_data:
+            if self.have_non_dataclass_args:
+                return (Namespace(), cmd_obj), argv
             return cmd_obj, argv
         else:
             return (Namespace(**other_data), cmd_obj), argv
