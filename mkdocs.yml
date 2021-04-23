@@ -6,15 +6,12 @@ repo_name: "kmsquire/dataclass-opt"
 
 site_dir: "site"
 
-
 nav:
   - Home:
       - Overview: index.md
       - Changelog: changelog.md
       - Credits: credits.md
       - License: license.md
-  - Code Reference:
-      - cli.py: reference/cli.md
   - Development:
       - Contributing: contributing.md
 
