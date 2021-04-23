@@ -227,6 +227,12 @@ def test_nargs():
     args = parser.parse_args("c --foo a b".split())
     assert args == Test(["a", "b"], ["c"])
 
+    with raises(SystemExit):
+        parser.parse_args(["c --foo a"])
+
+    with raises(SystemExit):
+        parser.parse_args(["a c --foo a b"])
+
 
 def test_nargs_optional():
     @dataclass
@@ -277,6 +283,15 @@ def test_nargs_star():
     parser = DataClassParser(Test)
     args = parser.parse_args("a b --foo x y --bar 1 2".split())
     assert args == Test(["x", "y"], ["1", "2"], ["a", "b"])
+
+    args = parser.parse_args("a --foo --bar".split())
+    assert args == Test([], [], ["a"])
+
+    with raises(SystemExit):
+        args = parser.parse_args(["a"])
+
+    with raises(SystemExit):
+        args = parser.parse_args([])
 
 
 def test_nargs_plus():
@@ -370,6 +385,9 @@ def test_choices():
     with raises(SystemExit):
         parser.parse_args(["fire"])
 
+    with raises(SystemExit):
+        parser.parse_args([])
+
 
 def test_choices_int():
     @dataclass
@@ -382,6 +400,9 @@ def test_choices_int():
 
     with raises(SystemExit):
         parser.parse_args(["4"])
+
+    with raises(SystemExit):
+        parser.parse_args([])
 
 
 def test_required():
@@ -418,6 +439,9 @@ def test_dest():
     args = parser.parse_args(["--sum", "2", "3", "4"])
     assert args == Test([2, 3, 4], accumulate=sum)
 
+    with raises(SystemExit):
+        args = parser.parse_args([])
+
 
 def test_option_values():
     @dataclass
@@ -429,6 +453,12 @@ def test_option_values():
     parser = DataClassParser(Test)
     args = parser.parse_args(["-xyzZ"])
     assert args == Test(True, True, "Z")
+
+    args = parser.parse_args(["-zZ"])
+    assert args == Test(False, False, "Z")
+
+    with raises(SystemExit):
+        args = parser.parse_args([])
 
 
 def test_invalid_args():
