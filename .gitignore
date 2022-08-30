@@ -5,3 +5,4 @@ dist
 dataclass_opt.egg-info
 htmlcov
 .coverage
+poetry.lock
