@@ -3,6 +3,7 @@
 
 import argparse
 import re
+import sys
 import typing
 from argparse import *  # noqa: F401, F403
 from argparse import ArgumentParser, Namespace
@@ -11,7 +12,8 @@ from dataclasses import MISSING, field, fields, is_dataclass, make_dataclass
 
 from inflection import dasherize, underscore
 
-# from argparse import BooleanOptionalAction  # python 3.9?
+if sys.version_info >= (3, 9, 0):
+    from argparse import BooleanOptionalAction
 
 
 __version__ = "0.1.0"
@@ -76,7 +78,11 @@ def _get_type(arg_type):
     is_optional = False
     is_list = False
 
-    if isinstance(arg_type, typing._GenericAlias):
+    if (
+        isinstance(arg_type, typing._GenericAlias)
+        or sys.version_info >= (3, 9, 0)
+        and isinstance(arg_type, typing.GenericAlias)
+    ):
         origin = arg_type.__origin__
         args = arg_type.__args__
 
@@ -93,7 +99,7 @@ def _get_type(arg_type):
             else:
                 # This is a normal Union; punt on the type
                 pass
-        elif arg_type._name == "List":
+        elif origin == list or arg_type._name == "List":
             is_list = True
             if len(args) == 1:
                 parm_base_type, _, parm_is_list = _get_type(args[0])

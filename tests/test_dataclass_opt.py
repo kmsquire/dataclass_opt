@@ -16,8 +16,8 @@ from dataclass_opt import (
     opt,
 )
 
-# from dataclass_opt import BooleanOptionalAction
-
+if sys.version_info >= (3, 9, 0):
+    from dataclass_opt import BooleanOptionalAction
 
 def test_no_fields():
     @dataclass
@@ -153,6 +153,15 @@ def test_append_str():
     args = parser.parse_args("--foo 1 --foo 2".split())
     assert args == Test(["1", "2"])
 
+    if sys.version_info >= (3, 9, 0):
+        @dataclass
+        class Test2:
+            foo: list[str] = opt(action="append")
+
+        parser = DataClassParser(Test2)
+        args = parser.parse_args("--foo 1 --foo 2".split())
+        assert args == Test2(["1", "2"])
+
 
 def test_append_int():
     @dataclass
@@ -162,6 +171,15 @@ def test_append_int():
     parser = DataClassParser(Test)
     args = parser.parse_args("--foo 1 --foo 2".split())
     assert args == Test([1, 2])
+
+    if sys.version_info >= (3, 9, 0):
+        @dataclass
+        class Test2:
+            foo: list[int] = opt(action="append")
+
+        parser = DataClassParser(Test2)
+        args = parser.parse_args("--foo 1 --foo 2".split())
+        assert args == Test2([1, 2])
 
 
 def test_append_const():
@@ -174,6 +192,14 @@ def test_append_const():
 
     with raises(UnsupportedException):
         DataClassParser(Test)
+
+    if sys.version_info >= (3, 9, 0):
+        @dataclass
+        class Test:
+            foo: list[int] = opt(action="append_const")
+
+        with raises(UnsupportedException):
+            DataClassParser(Test)
 
 
 def test_count():
@@ -201,20 +227,21 @@ def test_version():
 
 # Maybe Python 3.9 only?
 
-# def test_boolean_optional():
-#     @dataclass
-#     class Test:
-#         foo: Optional[bool] = opt(action=BooleanOptionalAction)
+if sys.version_info >= (3, 9, 0):
+    def test_boolean_optional():
+        @dataclass
+        class Test:
+            foo: Optional[bool] = opt(action=BooleanOptionalAction)
 
-#     parser = DataClassParser(Test)
-#     args = parser.parse_args(["--foo"])
-#     assert args == Test(True)
+        parser = DataClassParser(Test)
+        args = parser.parse_args(["--foo"])
+        assert args == Test(True)
 
-#     args = parser.parse_args(["--no-foo"])
-#     assert args == Test(True)
+        args = parser.parse_args(["--no-foo"])
+        assert args == Test(False)
 
-#     args = parser.parse_args([])
-#     assert args == Test(None)
+        args = parser.parse_args([])
+        assert args == Test(None)
 
 
 def test_nargs():
@@ -226,6 +253,16 @@ def test_nargs():
     parser = DataClassParser(Test)
     args = parser.parse_args("c --foo a b".split())
     assert args == Test(["a", "b"], ["c"])
+
+    if sys.version_info >= (3, 9, 0):
+        @dataclass
+        class Test2:
+            foo: list[str] = opt(nargs=2)
+            bar: list[str] = arg(nargs=1)
+
+        parser = DataClassParser(Test2)
+        args = parser.parse_args("c --foo a b".split())
+        assert args == Test2(["a", "b"], ["c"])
 
 
 def test_nargs_optional():
@@ -278,19 +315,43 @@ def test_nargs_star():
     args = parser.parse_args("a b --foo x y --bar 1 2".split())
     assert args == Test(["x", "y"], ["1", "2"], ["a", "b"])
 
+    if sys.version_info >= (3, 9, 0):
+        @dataclass
+        class Test2:
+            foo: list[str] = opt(nargs="*")
+            bar: list[str] = opt(nargs="*")
+            baz: list[str] = arg(nargs="*")
+
+        parser = DataClassParser(Test2)
+        args = parser.parse_args("a b --foo x y --bar 1 2".split())
+        assert args == Test2(["x", "y"], ["1", "2"], ["a", "b"])
+
 
 def test_nargs_plus():
     @dataclass
     class Test:
         foo: List[str] = arg(nargs="+")
+        bar: List[str] = opt(nargs="+")
 
     parser = DataClassParser(Test)
-    args = parser.parse_args("a b c".split())
-    assert args == Test(["a", "b", "c"])
+    args = parser.parse_args("a b c --bar dee eee".split())
+    assert args == Test(["a", "b", "c"], ["dee", "eee"])
 
     with raises(SystemExit):
         parser.parse_args([])
 
+    if sys.version_info >= (3, 9, 0):
+        @dataclass
+        class Test2:
+            foo: List[str] = arg(nargs="+")
+            bar: List[str] = opt(nargs="+")
+
+        parser = DataClassParser(Test2)
+        args = parser.parse_args("a b c --bar dee eee".split())
+        assert args == Test2(["a", "b", "c"], ["dee", "eee"])
+
+        with raises(SystemExit):
+            parser.parse_args([])
 
 def test_default():
     @dataclass
@@ -417,6 +478,19 @@ def test_dest():
 
     args = parser.parse_args(["--sum", "2", "3", "4"])
     assert args == Test([2, 3, 4], accumulate=sum)
+
+    if sys.version_info >= (3, 9, 0):
+        @dataclass
+        class Test2:
+            integers: list[int] = arg(metavar="int", nargs="+", help="Any integer")
+            accumulate: Callable = sum_opt
+
+        parser = DataClassParser(Test2)
+        args = parser.parse_args(["2", "3", "4"])
+        assert args == Test2([2, 3, 4], accumulate=max)
+
+        args = parser.parse_args(["--sum", "2", "3", "4"])
+        assert args == Test2([2, 3, 4], accumulate=sum)
 
 
 def test_option_values():
