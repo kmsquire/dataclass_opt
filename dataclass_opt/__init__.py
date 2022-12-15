@@ -184,12 +184,14 @@ class DataClassParser(ArgumentParser):
 
         super().__init__(*args, **kwargs)
 
+        self.have_extra_args=False
         if init_dataclass:
             self.add_arguments(init_dataclass)
             self.set_defaults(cls=init_dataclass)
 
         if version is not None:
-            self.add_argument("--version", action="version", version=version)
+            self.dcp_add_argument("--version", action="version", version=version)
+            self.have_extra_args=True
 
         self.have_commands = False
         if commands:
@@ -267,12 +269,18 @@ class DataClassParser(ArgumentParser):
             cls_obj, cls_fields = get_dataclass_obj(cls, data)
             other_data = {key: value for key, value in data.items() if key not in cls_fields}
 
+            if not other_data and not self.have_extra_args:
+                return cls_obj, argv
+
             return (cls_obj, Namespace(**other_data)), argv
 
         # cmd_is_dataclass
         cmd_cls = data.pop("cmd_cls")
         cmd_obj, cmd_cls_fields = get_dataclass_obj(cmd_cls, data)
         other_data = {key: value for key, value in data.items() if key not in cmd_cls_fields}
+
+        if not other_data and not self.have_extra_args:
+            return cmd_obj, argv
 
         return (Namespace(**other_data), cmd_obj), argv
 
@@ -389,6 +397,14 @@ class DataClassParser(ArgumentParser):
             if not is_arg:
                 kwargs["dest"] = dc_field.name
 
-            parser.add_argument(*names, **kwargs)
+            parser.dcp_add_argument(*names, **kwargs)
 
         return parser
+
+    def dcp_add_argument(self, *args, **kwargs):
+        return super().add_argument(*args, **kwargs)
+
+    def add_argument(self, *args, **kwargs):
+        self.have_extra_args = True
+        return super().add_argument(*args, **kwargs)
+    
