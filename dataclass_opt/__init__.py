@@ -191,9 +191,11 @@ class DataClassParser(ArgumentParser):
         if version is not None:
             self.add_argument("--version", action="version", version=version)
 
+        self.have_commands = False
         if commands:
             for name, command in commands.items():
                 self.add_command(name, command)
+            self.have_commands = True
 
     def add_command(self, name: str, cls, *, help: str = None, func=None):
         if not is_dataclass(cls):
@@ -213,6 +215,8 @@ class DataClassParser(ArgumentParser):
         cmd_parser.set_defaults(cmd_cls=cls)
         if func:
             cmd_parser.set_defaults(func=func)
+
+        self.have_commands = True
 
         return cmd_parser
 
@@ -238,6 +242,8 @@ class DataClassParser(ArgumentParser):
         cmd_is_dataclass = "cmd_cls" in args and is_dataclass(args.cmd_cls)
 
         if not cls_is_dataclass and not cmd_is_dataclass:
+            if self.have_commands:
+                return (args, None), argv
             return args, argv
 
         data = {k: v for k, v in vars(args).items()}
@@ -261,20 +267,14 @@ class DataClassParser(ArgumentParser):
             cls_obj, cls_fields = get_dataclass_obj(cls, data)
             other_data = {key: value for key, value in data.items() if key not in cls_fields}
 
-            if not other_data:
-                return cls_obj, argv
-            else:
-                return (cls_obj, Namespace(**other_data)), argv
+            return (cls_obj, Namespace(**other_data)), argv
 
         # cmd_is_dataclass
         cmd_cls = data.pop("cmd_cls")
         cmd_obj, cmd_cls_fields = get_dataclass_obj(cmd_cls, data)
         other_data = {key: value for key, value in data.items() if key not in cmd_cls_fields}
 
-        if not other_data:
-            return cmd_obj, argv
-        else:
-            return (Namespace(**other_data), cmd_obj), argv
+        return (Namespace(**other_data), cmd_obj), argv
 
     def _add_arguments(self, cls, parser=None):
         """Create an argument parser from a dataclass."""
