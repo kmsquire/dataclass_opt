@@ -3,7 +3,7 @@ authors = ["Kevin Squire <kevin.squire@gmail.com>"]
 description = "Create command line argument parsers using dataclasses"
 license = "MIT License"
 name = "dataclass_opt"
-version = "0.4.0"
+version = "0.4.1"
 
 [tool.poetry.dependencies]
 inflection = "^0.5.1"
