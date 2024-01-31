@@ -99,7 +99,7 @@ def _get_type(arg_type):
             else:
                 # This is a normal Union; punt on the type
                 pass
-        elif origin == list or arg_type._name == "List":
+        elif origin == list or getattr(arg_type, "_name", None) == "List":
             is_list = True
             if len(args) == 1:
                 parm_base_type, _, parm_is_list = _get_type(args[0])
